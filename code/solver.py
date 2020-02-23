@@ -31,53 +31,72 @@ def pretty_print(grid):
     print('\n\n')
 
 
-def is_solved(grid):
-    return all(isinstance(cell, int) for row in grid for cell in row)
+def check_solved(grid):
+    is_solved = all(isinstance(cell, int) for row in grid for cell in row)
+    if is_solved:
+        print('Solved')
+    return is_solved
 
 
 def solve(grid, solved_to_propagate):
-    propagate_constraints(grid, solved_to_propagate)
-    if is_solved(grid):
-        return grid
+    not_stalled = True
+    while not_stalled:
+        not_stalled = False
+        changes_made = propagate_constraints(grid, solved_to_propagate)
+        if check_solved(grid):
+            return grid
+        elif changes_made:
+            not_stalled = True
 
-    # TODO set difference
-    solved_rows = set_difference_rows(grid)
-    if solved_rows:
-        propagate_constraints(grid, solved_rows)
-    if is_solved(grid):
-        return grid
+        solved_diffs_rows = set_difference_rows(grid)
+        if solved_diffs_rows:
+            changes_made = propagate_constraints(grid, solved_diffs_rows)
+        if check_solved(grid):
+            return grid
+        elif changes_made:
+            not_stalled = True
 
-    solved_cols = set_difference_columns(grid)
-    if solved_cols:
-        propagate_constraints(grid, solved_cols)
-    if is_solved(grid):
-        return grid
+        # TODO set difference
+        # solved_cols = set_difference_columns(grid)
+        # if solved_cols:
+        #     changes_made = propagate_constraints(grid, solved_cols)
+        # if check_solved(grid):
+        #     return grid
+        # elif changes_made:
+        #     not_stalled = True
+        #
+        # solved_squares = set_difference_squares(grid)
+        # if solved_squares:
+        #     changes_made = propagate_constraints(grid, solved_squares)
+        # if check_solved(grid):
+        #     return grid
+        # elif changes_made:
+        #     not_stalled = True
 
-    solved_squares = set_difference_squares(grid)
-    if solved_squares:
-        propagate_constraints(grid, solved_squares)
-    if is_solved(grid):
-        return grid
+        solved_rows_pairs = pairs_rows(grid)
+        if solved_rows_pairs:
+            changes_made = propagate_constraints(grid, solved_rows_pairs)
+        if check_solved(grid):
+            return grid
+        elif changes_made:
+            not_stalled = True
 
+        solved_cols_pairs = pairs_columns(grid)
+        if solved_cols_pairs:
+            changes_made = propagate_constraints(grid, solved_cols_pairs)
+        if check_solved(grid):
+            return grid
+        elif changes_made:
+            not_stalled = True
 
-    solved_rows = pairs_rows(grid)
-    if solved_rows:
-        propagate_constraints(grid, solved_rows)
-    if is_solved(grid):
-        return grid
-
-    solved_cols = pairs_columns(grid)
-    if solved_cols:
-        propagate_constraints(grid, solved_cols)
-    if is_solved(grid):
-        return grid
-
-    # TODO solve squares
-    solved_squares = pairs_squares(grid)
-    if solved_squares:
-        propagate_constraints(grid, solved_squares)
-    if is_solved(grid):
-        return grid
+        # TODO solve squares
+        # solved_squares = pairs_squares(grid)
+        # if solved_squares:
+        #     changes_made = propagate_constraints(grid, solved_squares)
+        # if check_solved(grid):
+        #     return grid
+        # elif changes_made:
+        #     not_stalled = True
 
     # TODO backtracking
     # if here then not solved and no additional constraints to propagate
@@ -229,6 +248,20 @@ def pairs_squares(grid):
 
 def set_difference_rows(grid):
     new_solved = []
+    for row_index, row in enumerate(grid):
+        coordinates = []
+        sets = []
+        for col_index, cell in enumerate(row):
+            if isinstance(cell, set):
+                sets.append(cell)
+                coordinates.append(col_index)
+        sets = difference_elimination(sets)
+        for cell, col_index in zip(sets, coordinates):
+            if len(cell) == 1:
+                cell = cell.pop()
+                new_solved.append((row_index, col_index, cell))
+            grid[row_index][col_index] = cell
+
     return new_solved
 
 
@@ -240,6 +273,7 @@ def set_difference_columns(grid):
 def set_difference_squares(grid):
     new_solved = []
     return new_solved
+
 
 def difference_elimination(set_list):
     for index, num_set in enumerate(set_list):
@@ -282,7 +316,7 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [7, 0, 0, 0, 0, 3, 5, 0, 0]
     ]
-    input_grid = easy
+    input_grid = hard
     print('Input is')
     pretty_print(input_grid)
     now = datetime.datetime.now()
