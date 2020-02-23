@@ -56,15 +56,15 @@ def solve(grid, solved_to_propagate):
         elif changes_made:
             not_stalled = True
 
+        solved_cols = set_difference_columns(grid)
+        if solved_cols:
+            changes_made = propagate_constraints(grid, solved_cols)
+        if check_solved(grid):
+            return grid
+        elif changes_made:
+            not_stalled = True
+
         # TODO set difference
-        # solved_cols = set_difference_columns(grid)
-        # if solved_cols:
-        #     changes_made = propagate_constraints(grid, solved_cols)
-        # if check_solved(grid):
-        #     return grid
-        # elif changes_made:
-        #     not_stalled = True
-        #
         # solved_squares = set_difference_squares(grid)
         # if solved_squares:
         #     changes_made = propagate_constraints(grid, solved_squares)
@@ -267,6 +267,21 @@ def set_difference_rows(grid):
 
 def set_difference_columns(grid):
     new_solved = []
+    for col_index in range(9):
+        coordinates = []
+        sets = []
+        for row_index, row in enumerate(grid):
+            cell = row[col_index]
+            if isinstance(cell, set):
+                sets.append(cell)
+                coordinates.append(row_index)
+        sets = difference_elimination(sets)
+        for cell, row_index in zip(sets, coordinates):
+            if len(cell) == 1:
+                cell = cell.pop()
+                new_solved.append((row_index, col_index, cell))
+            grid[row_index][col_index] = cell
+
     return new_solved
 
 

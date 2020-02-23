@@ -4,10 +4,10 @@ import solver
 
 
 def test_difference_elimination():
-    input = [{1, 2, 3}, {1, 5}, {1, 2, 4}, {1, 5}, {1, 5, 6}, {1, 2, 4}]
+    input_sets = [{1, 2, 3}, {1, 5}, {1, 2, 4}, {1, 5}, {1, 5, 6}, {1, 2, 4}]
     expected = [{3}, {1, 5}, {1, 2, 4}, {1, 5}, {6}, {1, 2, 4}]
 
-    actual = solver.difference_elimination(input)
+    actual = solver.difference_elimination(input_sets)
 
     assert expected == actual
 
@@ -17,6 +17,25 @@ def test_get_row_set_difference():
     expected_solved = [(0, 2, 3), (0, 7, 6)]
 
     actual_solved = solver.set_difference_rows(grid)
+
+    assert expected_solved == actual_solved
+
+
+def test_get_col_set_difference():
+    grid = [
+        [7, 0, 0, 0, 0, 0, 0, 0, 0],
+        [9, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 2, 3}, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 5}, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 2, 4}, 0, 0, 0, 0, 0, 0, 0, 0],
+        [8, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 5}, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 5, 6}, 0, 0, 0, 0, 0, 0, 0, 0],
+        [{1, 2, 4}, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+
+    expected_solved = [(2, 0, 3), (7, 0, 6)]
+    actual_solved = solver.set_difference_columns(grid)
 
     assert expected_solved == actual_solved
 
