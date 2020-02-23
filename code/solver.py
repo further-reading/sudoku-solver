@@ -154,15 +154,64 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def pairs_rows(grid):
-    return []
+    new_solved = []
+    for row_index, row in enumerate(grid):
+        pairs = []
+        for col_index, cell in enumerate(row[:-1]):
+            if isinstance(cell, int):
+                continue
+            elif len(cell) == 2:
+                if cell in row[col_index + 1:]:
+                    pairs.append(cell)
+        for pair in pairs:
+            for col_index, cell in enumerate(row):
+                if cell == pair:
+                    continue
+                if isinstance(cell, int):
+                    continue
+                for choice in pair:
+                    if choice in cell:
+                        cell.remove(choice)
+                        if len(cell) == 1:
+                            value = cell.pop()
+                            grid[row_index][col_index] = value
+                            new_solved.append((row_index, col_index, value))
+    return new_solved
 
 
 def pairs_columns(grid):
-    return []
+    new_solved = []
+    for col_index in range(9):
+        pairs = []
+        for row_index, row in enumerate(grid[:-1]):
+            cell = row[col_index]
+            if isinstance(cell, int):
+                continue
+            if len(cell) == 2:
+                for next_row in grid[row_index + 1:]:
+                    if cell == next_row[col_index]:
+                        pairs.append(cell)
+
+        for pair in pairs:
+            for row_index, row in enumerate(grid):
+                cell = row[col_index]
+                if cell == pair:
+                    continue
+                if isinstance(cell, int):
+                    continue
+                for choice in pair:
+                    if choice in cell:
+                        cell.remove(choice)
+                        if len(cell) == 1:
+                            value = cell.pop()
+                            grid[row_index][col_index] = value
+                            new_solved.append((row_index, col_index, value))
+    return new_solved
 
 
 def pairs_squares(grid):
-    return []
+    new_solved = []
+    return new_solved
 
 def odd_ones_out(grid):
     return []
