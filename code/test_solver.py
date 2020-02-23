@@ -1,5 +1,30 @@
 import solver
 
+import solver
+
+
+def test_difference_elimination():
+    input = [{1, 2, 3}, {1, 5}, {1, 2, 4}, {1, 5}, {1, 5, 6}, {1, 2, 4}]
+    expected = [{3}, {1, 5}, {1, 2, 4}, {1, 5}, {6}, {1, 2, 4}]
+
+    actual = solver.difference_elimination(input)
+
+    assert expected == actual
+
+
+# def test_get_row_set_difference():
+#     grid = [
+#         [7, 9, {1, 2, 3}, {1, 5}, {1, 2, 4}, 8, {1, 5}, {1, 5, 6}, {2, 4}]
+#     ]
+#     expected_grid = [[7, 9, {1, 2, 3}, {1, 5}, {1, 2, 4}, 8, {1, 5}, {1, 5, 6}, {2, 4}]]
+#     expected_solved = [7, 9, 3, {1, 5}, {2, 4}, 8, {1, 5}, 6, {2, 4}]
+#
+#     actual_solved = solver.set_difference_rows(grid)
+#
+#     assert expected_solved == actual_solved
+#     assert expected_grid == grid
+
+
 
 def test_row_pairs():
     input_grid = [

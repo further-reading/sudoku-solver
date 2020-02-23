@@ -40,7 +40,26 @@ def solve(grid, solved_to_propagate):
     if is_solved(grid):
         return grid
 
-    # TODO pair elimination
+    # TODO set difference
+    solved_rows = set_difference_rows(grid)
+    if solved_rows:
+        propagate_constraints(grid, solved_rows)
+    if is_solved(grid):
+        return grid
+
+    solved_cols = set_difference_columns(grid)
+    if solved_cols:
+        propagate_constraints(grid, solved_cols)
+    if is_solved(grid):
+        return grid
+
+    solved_squares = set_difference_squares(grid)
+    if solved_squares:
+        propagate_constraints(grid, solved_squares)
+    if is_solved(grid):
+        return grid
+
+
     solved_rows = pairs_rows(grid)
     if solved_rows:
         propagate_constraints(grid, solved_rows)
@@ -53,18 +72,12 @@ def solve(grid, solved_to_propagate):
     if is_solved(grid):
         return grid
 
+    # TODO solve squares
     solved_squares = pairs_squares(grid)
     if solved_squares:
         propagate_constraints(grid, solved_squares)
     if is_solved(grid):
         return grid
-
-    # TODO Odd one out eliminations
-    solved_odd_one_out = odd_ones_out(grid)
-    if solved_odd_one_out:
-        propagate_constraints(grid, solved_odd_one_out)
-        if is_solved(grid):
-            return grid
 
     # TODO backtracking
     # if here then not solved and no additional constraints to propagate
@@ -213,8 +226,32 @@ def pairs_squares(grid):
     new_solved = []
     return new_solved
 
-def odd_ones_out(grid):
-    return []
+
+def set_difference_rows(grid):
+    new_solved = []
+    return new_solved
+
+
+def set_difference_columns(grid):
+    new_solved = []
+    return new_solved
+
+
+def set_difference_squares(grid):
+    new_solved = []
+    return new_solved
+
+def difference_elimination(set_list):
+    for index, num_set in enumerate(set_list):
+        other_sets_union = set()
+        for i2, other_set in enumerate(set_list):
+            if i2 != index:
+                other_sets_union = other_sets_union | other_set
+        difference = num_set - other_sets_union
+        if difference:
+            # if no difference then its a subset
+            set_list[index] = difference
+    return set_list
 
 class BadChoice(Exception):
     def __init__(self):
