@@ -2,6 +2,7 @@ import datetime
 from copy import deepcopy
 
 WOOPS_COUNT = 0
+LOOPS = 0
 
 
 def setup(grid):
@@ -39,55 +40,46 @@ def check_solved(grid):
 
 
 def solve(grid, solved_to_propagate):
+    global LOOPS
+    global not_stalled
     not_stalled = True
     while not_stalled:
+        LOOPS += 1
         not_stalled = False
-        changes_made = propagate_constraints(grid, solved_to_propagate)
+        propagate_constraints(grid, solved_to_propagate)
         if check_solved(grid):
             return grid
-        elif changes_made:
-            not_stalled = True
+        print(not_stalled)
 
         solved_diffs_rows = set_difference_rows(grid)
         if solved_diffs_rows:
-            changes_made = propagate_constraints(grid, solved_diffs_rows)
+            propagate_constraints(grid, solved_diffs_rows)
         if check_solved(grid):
             return grid
-        elif changes_made:
-            not_stalled = True
 
         solved_cols = set_difference_columns(grid)
         if solved_cols:
-            changes_made = propagate_constraints(grid, solved_cols)
+            propagate_constraints(grid, solved_cols)
         if check_solved(grid):
             return grid
-        elif changes_made:
-            not_stalled = True
 
-        # TODO set difference
-        # solved_squares = set_difference_squares(grid)
-        # if solved_squares:
-        #     changes_made = propagate_constraints(grid, solved_squares)
-        # if check_solved(grid):
-        #     return grid
-        # elif changes_made:
-        #     not_stalled = True
+        solved_squares = set_difference_squares(grid)
+        if solved_squares:
+            propagate_constraints(grid, solved_squares)
+        if check_solved(grid):
+            return grid
 
         solved_rows_pairs = pairs_rows(grid)
         if solved_rows_pairs:
-            changes_made = propagate_constraints(grid, solved_rows_pairs)
+            propagate_constraints(grid, solved_rows_pairs)
         if check_solved(grid):
             return grid
-        elif changes_made:
-            not_stalled = True
 
         solved_cols_pairs = pairs_columns(grid)
         if solved_cols_pairs:
-            changes_made = propagate_constraints(grid, solved_cols_pairs)
+            propagate_constraints(grid, solved_cols_pairs)
         if check_solved(grid):
             return grid
-        elif changes_made:
-            not_stalled = True
 
         # TODO solve squares
         # solved_squares = pairs_squares(grid)
@@ -106,26 +98,26 @@ def solve(grid, solved_to_propagate):
 
 
 def propagate_constraints(grid, solved):
-    changes_made = False
+    global not_stalled
     for solved_tuple in solved:
         new_solved = solve_row(grid, *solved_tuple)
         if new_solved:
             solved += new_solved
-            changes_made = True
+            not_stalled = True
 
         new_solved = solve_column(grid, *solved_tuple)
         if new_solved:
             solved += new_solved
-            changes_made = True
+            not_stalled = True
 
         new_solved = solve_square(grid, *solved_tuple)
         if new_solved:
             solved += new_solved
-            changes_made = True
-    return changes_made
+            not_stalled = True
 
 
 def solve_row(grid, solved_row_index, solved_column_index, solved_value):
+    global not_stalled
     new_solved = []
     row = grid[solved_row_index]
     for col_index, cell in enumerate(row):
@@ -133,6 +125,7 @@ def solve_row(grid, solved_row_index, solved_column_index, solved_value):
             continue
         if isinstance(cell, set) and solved_value in cell:
             cell.remove(solved_value)
+            not_stalled = True
             if len(cell) == 1:
                 value = cell.pop()
                 grid[solved_row_index][col_index] = value
@@ -144,12 +137,14 @@ def solve_row(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def solve_column(grid, solved_row_index, solved_column_index, solved_value):
+    global not_stalled
     new_solved = []
     for r_index, row in enumerate(grid):
         if r_index == solved_row_index:
             continue
         cell = row[solved_column_index]
         if isinstance(cell, set) and solved_value in cell:
+            not_stalled = True
             cell.remove(solved_value)
             if len(cell) == 1:
                 value = cell.pop()
@@ -162,6 +157,7 @@ def solve_column(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def solve_square(grid, solved_row_index, solved_column_index, solved_value):
+    global not_stalled
     new_solved = []
     square_row_start = solved_row_index - solved_row_index % 3
     square_col_start = solved_column_index - solved_column_index % 3
@@ -175,6 +171,7 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
                 continue
             cell = grid[r_index][c_index]
             if isinstance(cell, set) and solved_value in cell:
+                not_stalled = True
                 cell.remove(solved_value)
                 if len(cell) == 1:
                     value = cell.pop()
@@ -186,6 +183,7 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def pairs_rows(grid):
+    global not_stalled
     new_solved = []
     for row_index, row in enumerate(grid):
         pairs = []
@@ -203,6 +201,7 @@ def pairs_rows(grid):
                     continue
                 for choice in pair:
                     if choice in cell:
+                        not_stalled = True
                         cell.remove(choice)
                         if len(cell) == 1:
                             value = cell.pop()
@@ -212,6 +211,7 @@ def pairs_rows(grid):
 
 
 def pairs_columns(grid):
+    global not_stalled
     new_solved = []
     for col_index in range(9):
         pairs = []
@@ -233,6 +233,7 @@ def pairs_columns(grid):
                     continue
                 for choice in pair:
                     if choice in cell:
+                        not_stalled = True
                         cell.remove(choice)
                         if len(cell) == 1:
                             value = cell.pop()
@@ -242,6 +243,7 @@ def pairs_columns(grid):
 
 
 def pairs_squares(grid):
+    global not_stalled
     new_solved = []
     return new_solved
 
@@ -287,10 +289,29 @@ def set_difference_columns(grid):
 
 def set_difference_squares(grid):
     new_solved = []
+    for square_start in range(0, 9, 3):
+        coordinates = []
+        sets = []
+        for row_index, row in enumerate(grid[square_start:square_start + 3]):
+            for col_index, cell in enumerate(row[square_start:square_start + 3]):
+                if isinstance(cell, set):
+                    sets.append(cell)
+                    coordinates.append(
+                        (row_index + square_start, col_index + square_start)
+                    )
+        sets = difference_elimination(sets)
+        for cell, coords in zip(sets, coordinates):
+            row_index, col_index = coords
+            if len(cell) == 1:
+                cell = cell.pop()
+                new_solved.append((row_index, col_index, cell))
+            grid[row_index][col_index] = cell
+
     return new_solved
 
 
 def difference_elimination(set_list):
+    global not_stalled
     for index, num_set in enumerate(set_list):
         other_sets_union = set()
         for i2, other_set in enumerate(set_list):
@@ -298,9 +319,11 @@ def difference_elimination(set_list):
                 other_sets_union = other_sets_union | other_set
         difference = num_set - other_sets_union
         if difference:
+            not_stalled = True
             # if no difference then its a subset
             set_list[index] = difference
     return set_list
+
 
 class BadChoice(Exception):
     def __init__(self):
@@ -343,3 +366,4 @@ if __name__ == '__main__':
     pretty_print(output)
     print(f'Incorrect guesses: {WOOPS_COUNT}')
     print(f'Duration: {duration}')
+    print(f'Loops: {LOOPS}')

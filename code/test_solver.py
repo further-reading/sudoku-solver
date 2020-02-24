@@ -1,7 +1,5 @@
 import solver
 
-import solver
-
 
 def test_difference_elimination():
     input_sets = [{1, 2, 3}, {1, 5}, {1, 2, 4}, {1, 5}, {1, 5, 6}, {1, 2, 4}]
@@ -36,6 +34,24 @@ def test_get_col_set_difference():
 
     expected_solved = [(2, 0, 3), (7, 0, 6)]
     actual_solved = solver.set_difference_columns(grid)
+
+    assert expected_solved == actual_solved
+
+def test_get_square_set_difference():
+    input_grid = [
+        [7, 9, {1, 2, 3}, 0, 0, 0, 0, 0, 0],
+        [{1, 5}, {1, 2, 4}, 8, 0, 0, 0, 0, 0, 0],
+        [{1, 5}, {1, 5, 6}, {1, 2, 4}, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+
+    expected_solved = [(0, 2, 3), (2, 1, 6)]
+    actual_solved = solver.set_difference_squares(input_grid)
 
     assert expected_solved == actual_solved
 
@@ -74,3 +90,22 @@ def test_col_pairs():
     actual_solved = solver.pairs_columns(input_grid)
     assert input_grid == expected_grid
     assert actual_solved == expected_solved
+
+
+# def test_square_pairs():
+#     input_grid = [
+#         [{8, 9}, 2, {3, 7, 8}],
+#         [4, {5, 8, 9}, 6],
+#         [1, {3, 7}, {8, 9}],
+#     ]
+#     expected_grid = [
+#         [{8, 9}, 2, {3, 7}],
+#         [4, 5, 6],
+#         [1, {3, 7}, {8, 9}],
+#     ]
+#
+#     expected_solved = [(1, 1, 5)]
+#
+#     actual_solved = solver.pairs_squares(input_grid)
+#     assert input_grid == expected_grid
+#     assert actual_solved == expected_solved
