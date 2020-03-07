@@ -82,13 +82,11 @@ def solve(grid, solved_to_propagate):
             return grid
 
         # TODO solve squares
-        # solved_squares = pairs_squares(grid)
-        # if solved_squares:
-        #     changes_made = propagate_constraints(grid, solved_squares)
-        # if check_solved(grid):
-        #     return grid
-        # elif changes_made:
-        #     not_stalled = True
+        solved_squares = pairs_squares(grid)
+        if solved_squares:
+            propagate_constraints(grid, solved_squares)
+        if check_solved(grid):
+            return grid
 
     # TODO backtracking
     # if here then not solved and no additional constraints to propagate
@@ -242,9 +240,44 @@ def pairs_columns(grid):
     return new_solved
 
 
+def get_square(grid, row_start, col_start):
+    square = {}
+    for r_index in range(row_start, row_start + 3):
+        for c_index in range(col_start, col_start + 3):
+            square[(r_index, c_index)] = grid[r_index][c_index]
+    return square
+
+
 def pairs_squares(grid):
     global not_stalled
     new_solved = []
+    for square_row_start in range(0, 9, 3):
+        for square_col_start in range(0, 9, 3):
+            square = get_square(grid, square_row_start, square_col_start)
+            pairs = []
+            square = list(square.items())
+            for index, (coord, cell) in enumerate(square):
+                if isinstance(cell, int):
+                    continue
+                if len(cell) == 2:
+                    for next_coord, next_cell in square[index + 1:]:
+                        if next_cell == cell:
+                            pairs.append(cell)
+            for pair in pairs:
+                for coord, cell in square:
+                    if cell == pair:
+                        continue
+                    if isinstance(cell, int):
+                        continue
+                    for choice in pair:
+                        if choice in cell:
+                            not_stalled = True
+                            cell.remove(choice)
+                            if len(cell) == 1:
+                                value = cell.pop()
+                                row, col = coord
+                                grid[row][col] = value
+                                new_solved.append((row, col, value))
     return new_solved
 
 

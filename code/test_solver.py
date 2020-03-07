@@ -92,20 +92,64 @@ def test_col_pairs():
     assert actual_solved == expected_solved
 
 
-# def test_square_pairs():
-#     input_grid = [
-#         [{8, 9}, 2, {3, 7, 8}],
-#         [4, {5, 8, 9}, 6],
-#         [1, {3, 7}, {8, 9}],
-#     ]
-#     expected_grid = [
-#         [{8, 9}, 2, {3, 7}],
-#         [4, 5, 6],
-#         [1, {3, 7}, {8, 9}],
-#     ]
-#
-#     expected_solved = [(1, 1, 5)]
-#
-#     actual_solved = solver.pairs_squares(input_grid)
-#     assert input_grid == expected_grid
-#     assert actual_solved == expected_solved
+def test_get_square():
+    input_grid = [
+        [1, 2, 3, 0, 0, 0, 0, 0, 0],
+        [4, 5, 6, 0, 0, 0, 0, 0, 0],
+        [7, 8, 9, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    expected = {
+        (0, 0): 1,
+        (0, 1): 2,
+        (0, 2): 3,
+        (1, 0): 4,
+        (1, 1): 5,
+        (1, 2): 6,
+        (2, 0): 7,
+        (2, 1): 8,
+        (2, 2): 9,
+    }
+
+    input_row_start = 0
+    input_col_start = 0
+
+    actual = solver.get_square(input_grid, input_row_start, input_col_start)
+
+    assert actual == expected
+
+
+def test_square_pairs():
+    input_grid = [
+        [{8, 9}, 2, {3, 7, 8}, 0, 0, 0, 0, 0, 0],
+        [4, {5, 8, 9}, 6, 0, 0, 0, 0, 0, 0],
+        [1, {3, 7}, {8, 9}, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+    expected_grid = [
+        [{8, 9}, 2, {3, 7}, 0, 0, 0, 0, 0, 0],
+        [4, 5, 6, 0, 0, 0, 0, 0, 0],
+        [1, {3, 7}, {8, 9}, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
+
+    expected_solved = [(1, 1, 5)]
+
+    actual_solved = solver.pairs_squares(input_grid)
+    assert input_grid == expected_grid
+    assert actual_solved == expected_solved
