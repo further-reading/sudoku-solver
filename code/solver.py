@@ -81,7 +81,6 @@ def solve(grid, solved_to_propagate):
         if check_solved(grid):
             return grid
 
-        # TODO solve squares
         solved_squares = pairs_squares(grid)
         if solved_squares:
             propagate_constraints(grid, solved_squares)
