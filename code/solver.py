@@ -49,7 +49,6 @@ def solve(grid, solved_to_propagate):
         propagate_constraints(grid, solved_to_propagate)
         if check_solved(grid):
             return grid
-        print(not_stalled)
 
         solved_diffs_rows = set_difference_rows(grid)
         if solved_diffs_rows:
