@@ -5,6 +5,7 @@ WOOPS_COUNT = 0
 LOOPS = 0
 NOT_STALLED = True
 
+
 def setup(grid):
     global WOOPS_COUNT
     global LOOPS
