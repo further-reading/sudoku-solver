@@ -55,41 +55,19 @@ def solve(grid, solved_to_propagate):
         LOOPS += 1
         NOT_STALLED = False
 
-        solved_diffs_rows = set_difference_rows(grid)
-        if solved_diffs_rows:
-            propagate_constraints(grid, solved_diffs_rows)
-        if check_solved(grid):
-            return grid
+        for set_diff_check in [set_difference_rows, set_difference_columns, set_difference_squares]:
+            solved_diffs = set_diff_check(grid)
+            if solved_diffs:
+                propagate_constraints(grid, solved_diffs)
+            if check_solved(grid):
+                return grid
 
-        solved_diff_cols = set_difference_columns(grid)
-        if solved_diff_cols:
-            propagate_constraints(grid, solved_diff_cols)
-        if check_solved(grid):
-            return grid
-
-        solved__diff_squares = set_difference_squares(grid)
-        if solved__diff_squares:
-            propagate_constraints(grid, solved__diff_squares)
-        if check_solved(grid):
-            return grid
-
-        solved_rows_pairs = pairs_rows(grid)
-        if solved_rows_pairs:
-            propagate_constraints(grid, solved_rows_pairs)
-        if check_solved(grid):
-            return grid
-
-        solved_cols_pairs = pairs_columns(grid)
-        if solved_cols_pairs:
-            propagate_constraints(grid, solved_cols_pairs)
-        if check_solved(grid):
-            return grid
-
-        solved_squares = pairs_squares(grid)
-        if solved_squares:
-            propagate_constraints(grid, solved_squares)
-        if check_solved(grid):
-            return grid
+        for pair_check in [pairs_rows, pairs_columns, pairs_squares]:
+            solved_pairs = pair_check(grid)
+            if solved_pairs:
+                propagate_constraints(grid, solved_pairs)
+            if check_solved(grid):
+                return grid
 
     # TODO backtracking
     # if here then not solved and no additional constraints to propagate
@@ -100,21 +78,13 @@ def solve(grid, solved_to_propagate):
 
 def propagate_constraints(grid, solved):
     global NOT_STALLED
+    solvers = [solve_row, solve_square, solve_column]
     for solved_tuple in solved:
-        new_solved = solve_row(grid, *solved_tuple)
-        if new_solved:
-            solved += new_solved
-            NOT_STALLED = True
-
-        new_solved = solve_column(grid, *solved_tuple)
-        if new_solved:
-            solved += new_solved
-            NOT_STALLED = True
-
-        new_solved = solve_square(grid, *solved_tuple)
-        if new_solved:
-            solved += new_solved
-            NOT_STALLED = True
+        for solver in solvers:
+            new_solved = solver(grid, *solved_tuple)
+            if new_solved:
+                solved += new_solved
+                NOT_STALLED = True
 
 
 def solve_row(grid, solved_row_index, solved_column_index, solved_value):
@@ -390,7 +360,7 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [7, 0, 0, 0, 0, 3, 5, 0, 0]
     ]
-    input_grid = easy
+    input_grid = hard
     print('Input is')
     pretty_print(input_grid)
     now = datetime.datetime.now()
