@@ -155,6 +155,25 @@ def test_square_pairs():
     assert actual_solved == expected_solved
 
 
+def test_find_guess_cells():
+    input_grid = [
+        [{1, 2, 3, 4, 5}, 0, 5, 2, 0, 0, 0, {1, 2, 3}, 4],
+        [0, 0, 0, 0, {1, 2, 3, 4}, 0, 0, 0, 0],
+        [4, 0, 2, 3, 0, 5, 9, 0, 7],
+        [0, 5, 0, 0, 2, 9, 3, 0, 0],
+        [0, 9, {1, 2}, 0, 0, 0, 0, 2, 0],
+        [0, 0, 1, 4, 3, 0, 0, 9, 0],
+        [9, 0, 3, 5, 0, 4, 8, 0, 6],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [7, 0, 0, 0, 0, 3, 5, 0, 0]
+    ]
+
+    expected = [(4, 2), (0, 7), (1, 4), (0, 0)]
+
+    actual = solver.find_guess_cells(input_grid)
+
+    assert actual == expected
+
 def test_hard_end_to_end():
     input_grid = [
         [0, 0, 5, 2, 0, 0, 0, 0, 4],
