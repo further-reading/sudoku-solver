@@ -2,6 +2,8 @@ import datetime
 from copy import deepcopy
 
 WOOPS_COUNT = 0
+GUESSES = 0
+RESETS = 0
 LOOPS = 0
 NOT_STALLED = True
 
@@ -47,6 +49,8 @@ def check_solved(grid):
 def solve(grid, solved_to_propagate):
     global LOOPS
     global NOT_STALLED
+    global GUESSES
+    global RESETS
     propagate_constraints(grid, solved_to_propagate)
     if check_solved(grid):
         return grid
@@ -70,11 +74,23 @@ def solve(grid, solved_to_propagate):
             if check_solved(grid):
                 return grid
 
-    # TODO backtracking
-    # if here then not solved and no additional constraints to propagate
-    # will eventually implement backtracking here
-    print('failed')
-    return grid
+    unknown_cells = find_guess_cells(grid)
+    old_grid = deepcopy(grid)
+    for r_index, c_index in unknown_cells:
+        # handling mutability
+        grid = old_grid
+        old_grid = deepcopy(grid)
+        for guess in old_grid[r_index][c_index]:
+            GUESSES += 1
+            grid[r_index][c_index] = guess
+            new_solved = [(r_index, c_index, guess)]
+            try:
+                return solve(grid, new_solved)
+            except BadChoice:
+                continue
+    # if gets here tried all possibilities, failure was earlier
+    RESETS += 1
+    raise BadChoice
 
 
 def propagate_constraints(grid, solved):
@@ -332,6 +348,15 @@ def difference_elimination(set_list):
     return set_list
 
 
+def find_guess_cells(grid):
+    output = []
+    for r_index, row in enumerate(grid):
+        for c_index, cell in enumerate(row):
+            if isinstance(cell, set):
+                output.append((r_index, c_index))
+    return sorted(output, key=lambda x: len(grid[x[0]][x[1]]))
+
+
 class BadChoice(Exception):
     def __init__(self):
         global WOOPS_COUNT
@@ -361,7 +386,29 @@ if __name__ == '__main__':
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [7, 0, 0, 0, 0, 3, 5, 0, 0]
     ]
-    input_grid = hard
+    guesses_needed = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [4, 0, 0, 0, 0, 0, 9, 0, 7],
+        [0, 0, 0, 0, 0, 0, 3, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 2, 0],
+        [0, 0, 1, 4, 3, 0, 0, 9, 0],
+        [0, 0, 0, 5, 0, 4, 0, 0, 6],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+    empty_guesses_needed = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+    input_grid = guesses_needed
     print('Input is')
     pretty_print(input_grid)
     now = datetime.datetime.now()
@@ -371,6 +418,8 @@ if __name__ == '__main__':
     print('\n\n')
     print('Output is:')
     pretty_print(output)
+    print(f'Amount of guesses: {GUESSES}')
     print(f'Incorrect guesses: {WOOPS_COUNT}')
+    print(f'Resets needed: {RESETS}')
     print(f'Duration: {duration}')
     print(f'Loops: {LOOPS}')
