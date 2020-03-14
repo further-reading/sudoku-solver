@@ -83,6 +83,7 @@ def solve(grid, solved_to_propagate):
             try:
                 return solve(grid, new_solved)
             except BadChoice:
+                # Try next guess if first fails
                 continue
     # if gets here tried all possibilities, failure was earlier
     RESETS += 1
