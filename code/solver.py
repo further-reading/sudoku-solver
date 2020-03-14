@@ -274,13 +274,9 @@ def set_difference_rows(grid):
         for col_index, cell in enumerate(row):
             if isinstance(cell, set):
                 sets.append(cell)
-                coordinates.append(col_index)
+                coordinates.append((row_index, col_index))
         sets = difference_elimination(sets)
-        for cell, col_index in zip(sets, coordinates):
-            if len(cell) == 1:
-                cell = cell.pop()
-                new_solved.append((row_index, col_index, cell))
-            grid[row_index][col_index] = cell
+        new_solved += update_sets(zip(sets, coordinates), grid)
 
     return new_solved
 
@@ -294,13 +290,9 @@ def set_difference_columns(grid):
             cell = row[col_index]
             if isinstance(cell, set):
                 sets.append(cell)
-                coordinates.append(row_index)
+                coordinates.append((row_index, col_index))
         sets = difference_elimination(sets)
-        for cell, row_index in zip(sets, coordinates):
-            if len(cell) == 1:
-                cell = cell.pop()
-                new_solved.append((row_index, col_index, cell))
-            grid[row_index][col_index] = cell
+        new_solved += update_sets(zip(sets, coordinates), grid)
 
     return new_solved
 
@@ -313,12 +305,7 @@ def set_difference_squares(grid):
             sets = [x for r, c, x in square if isinstance(x, set)]
             coordinates = [(r, c) for r, c, x in square if isinstance(x, set)]
             sets = difference_elimination(sets)
-            for cell, coords in zip(sets, coordinates):
-                row_index, col_index = coords
-                if len(cell) == 1:
-                    cell = cell.pop()
-                    new_solved.append((row_index, col_index, cell))
-                grid[row_index][col_index] = cell
+            new_solved += update_sets(zip(sets, coordinates), grid)
 
     return new_solved
 
@@ -336,6 +323,18 @@ def difference_elimination(set_list):
             # if no difference then its a subset
             set_list[index] = difference
     return set_list
+
+
+def update_sets(update_list, grid):
+    new_solved = []
+    for cell, coords in update_list:
+        row_index, col_index = coords
+        if len(cell) == 1:
+            cell = cell.pop()
+            new_solved.append((row_index, col_index, cell))
+            grid[row_index][col_index] = cell
+
+    return new_solved
 
 
 def find_guess_cells(grid):
