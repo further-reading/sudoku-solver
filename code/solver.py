@@ -5,7 +5,6 @@ WOOPS_COUNT = 0
 GUESSES = 0
 RESETS = 0
 LOOPS = 0
-NOT_STALLED = True
 
 
 def setup(grid):
@@ -48,22 +47,21 @@ def check_solved(grid):
 
 def solve(grid, solved_to_propagate):
     global LOOPS
-    global NOT_STALLED
     global GUESSES
     global RESETS
     propagate_constraints(grid, solved_to_propagate)
     if check_solved(grid):
         return grid
 
-    NOT_STALLED = True
-    while NOT_STALLED:
+    not_stalled = True
+    while not_stalled:
         LOOPS += 1
-        NOT_STALLED = False
+        not_stalled = False
 
         for set_diff_check in [set_difference_rows, set_difference_columns, set_difference_squares]:
             solved_diffs = set_diff_check(grid)
             if solved_diffs:
-                NOT_STALLED = True
+                not_stalled = True
                 propagate_constraints(grid, solved_diffs)
             if check_solved(grid):
                 return grid
@@ -71,7 +69,7 @@ def solve(grid, solved_to_propagate):
         for pair_check in [pairs_rows, pairs_columns, pairs_squares]:
             solved_pairs = pair_check(grid)
             if solved_pairs:
-                NOT_STALLED = True
+                not_stalled = True
                 propagate_constraints(grid, solved_pairs)
             if check_solved(grid):
                 return grid
@@ -293,7 +291,6 @@ def set_difference_squares(grid):
 
 
 def difference_elimination(set_list):
-    global NOT_STALLED
     for index, num_set in enumerate(set_list):
         other_sets_union = set()
         for i2, other_set in enumerate(set_list):
@@ -301,7 +298,6 @@ def difference_elimination(set_list):
                 other_sets_union = other_sets_union | other_set
         difference = num_set - other_sets_union
         if difference:
-            NOT_STALLED = True
             # if no difference then its a subset
             set_list[index] = difference
     return set_list
