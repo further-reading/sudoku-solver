@@ -63,6 +63,7 @@ def solve(grid, solved_to_propagate):
         for set_diff_check in [set_difference_rows, set_difference_columns, set_difference_squares]:
             solved_diffs = set_diff_check(grid)
             if solved_diffs:
+                NOT_STALLED = True
                 propagate_constraints(grid, solved_diffs)
             if check_solved(grid):
                 return grid
@@ -70,6 +71,7 @@ def solve(grid, solved_to_propagate):
         for pair_check in [pairs_rows, pairs_columns, pairs_squares]:
             solved_pairs = pair_check(grid)
             if solved_pairs:
+                NOT_STALLED = True
                 propagate_constraints(grid, solved_pairs)
             if check_solved(grid):
                 return grid
@@ -94,14 +96,12 @@ def solve(grid, solved_to_propagate):
 
 
 def propagate_constraints(grid, solved):
-    global NOT_STALLED
     solvers = [solve_row, solve_square, solve_column]
     for solved_tuple in solved:
         for solver in solvers:
             new_solved = solver(grid, *solved_tuple)
             if new_solved:
                 solved += new_solved
-                NOT_STALLED = True
 
 
 def get_square(grid, row_start, col_start):
@@ -113,7 +113,6 @@ def get_square(grid, row_start, col_start):
 
 
 def solve_row(grid, solved_row_index, solved_column_index, solved_value):
-    global NOT_STALLED
     new_solved = []
     row = grid[solved_row_index]
     for col_index, cell in enumerate(row):
@@ -121,7 +120,6 @@ def solve_row(grid, solved_row_index, solved_column_index, solved_value):
             continue
         if isinstance(cell, set) and solved_value in cell:
             cell.remove(solved_value)
-            NOT_STALLED = True
             if len(cell) == 1:
                 value = cell.pop()
                 grid[solved_row_index][col_index] = value
@@ -133,14 +131,12 @@ def solve_row(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def solve_column(grid, solved_row_index, solved_column_index, solved_value):
-    global NOT_STALLED
     new_solved = []
     for r_index, row in enumerate(grid):
         if r_index == solved_row_index:
             continue
         cell = row[solved_column_index]
         if isinstance(cell, set) and solved_value in cell:
-            NOT_STALLED = True
             cell.remove(solved_value)
             if len(cell) == 1:
                 value = cell.pop()
@@ -153,14 +149,12 @@ def solve_column(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def solve_square(grid, solved_row_index, solved_column_index, solved_value):
-    global NOT_STALLED
     new_solved = []
     square_row_start = solved_row_index - solved_row_index % 3
     square_col_start = solved_column_index - solved_column_index % 3
     square = get_square(grid, square_row_start, square_col_start)
     for r_index, c_index, cell in square:
         if isinstance(cell, set) and solved_value in cell:
-            NOT_STALLED = True
             cell.remove(solved_value)
             if len(cell) == 1:
                 value = cell.pop()
@@ -174,7 +168,6 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
 
 
 def pairs_rows(grid):
-    global NOT_STALLED
     new_solved = []
     for row_index, row in enumerate(grid):
         pairs = []
@@ -192,7 +185,6 @@ def pairs_rows(grid):
                     continue
                 for choice in pair:
                     if choice in cell:
-                        NOT_STALLED = True
                         cell.remove(choice)
                         if len(cell) == 1:
                             value = cell.pop()
@@ -202,7 +194,6 @@ def pairs_rows(grid):
 
 
 def pairs_columns(grid):
-    global NOT_STALLED
     new_solved = []
     for col_index in range(9):
         pairs = []
@@ -224,7 +215,6 @@ def pairs_columns(grid):
                     continue
                 for choice in pair:
                     if choice in cell:
-                        NOT_STALLED = True
                         cell.remove(choice)
                         if len(cell) == 1:
                             value = cell.pop()
@@ -234,7 +224,6 @@ def pairs_columns(grid):
 
 
 def pairs_squares(grid):
-    global NOT_STALLED
     new_solved = []
     for square_row_start in range(0, 9, 3):
         for square_col_start in range(0, 9, 3):
@@ -257,7 +246,6 @@ def pairs_squares(grid):
                         continue
                     for choice in pair:
                         if choice in cell:
-                            NOT_STALLED = True
                             cell.remove(choice)
                             if len(cell) == 1:
                                 value = cell.pop()
