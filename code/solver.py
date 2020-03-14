@@ -8,10 +8,6 @@ LOOPS = 0
 
 
 def setup(grid):
-    global WOOPS_COUNT
-    global LOOPS
-    WOOPS_COUNT = 0
-    LOOPS = 0
     initial_solved = []
     for row_index in range(len(grid)):
         for column_index in range(len(grid[row_index])):
@@ -173,15 +169,8 @@ def pairs_rows(grid):
             for col_index, cell in enumerate(row):
                 if cell == pair:
                     continue
-                if isinstance(cell, int):
-                    continue
                 for choice in pair:
-                    if choice in cell:
-                        cell.remove(choice)
-                        if len(cell) == 1:
-                            value = cell.pop()
-                            grid[row_index][col_index] = value
-                            new_solved.append((row_index, col_index, value))
+                    new_solved += update_cells(grid, cell, choice, row_index, col_index)
     return new_solved
 
 
@@ -203,15 +192,8 @@ def pairs_columns(grid):
                 cell = row[col_index]
                 if cell == pair:
                     continue
-                if isinstance(cell, int):
-                    continue
                 for choice in pair:
-                    if choice in cell:
-                        cell.remove(choice)
-                        if len(cell) == 1:
-                            value = cell.pop()
-                            grid[row_index][col_index] = value
-                            new_solved.append((row_index, col_index, value))
+                    new_solved += update_cells(grid, cell, choice, row_index, col_index)
     return new_solved
 
 
@@ -234,15 +216,8 @@ def pairs_squares(grid):
                 for r_index, c_index, cell in square:
                     if cell == pair:
                         continue
-                    if isinstance(cell, int):
-                        continue
                     for choice in pair:
-                        if choice in cell:
-                            cell.remove(choice)
-                            if len(cell) == 1:
-                                value = cell.pop()
-                                grid[r_index][c_index] = value
-                                new_solved.append((r_index, c_index, value))
+                        new_solved += update_cells(grid, cell, choice, r_index, c_index)
     return new_solved
 
 
