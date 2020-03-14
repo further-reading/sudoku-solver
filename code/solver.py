@@ -364,4 +364,4 @@ if __name__ == '__main__':
     print(f'Incorrect guesses: {WOOPS_COUNT}')
     print(f'Resets needed: {RESETS}')
     print(f'Duration: {duration}')
-    print(f'Constraint Loops: {LOOPS}')
+    print(f'Loops: {LOOPS}')
