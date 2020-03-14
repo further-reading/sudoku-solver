@@ -112,28 +112,21 @@ def get_square(grid, row_start, col_start):
     return square
 
 
-def update_cells(grid, cell, value, r_index, c_index):
-    if isinstance(cell, set) and value in cell:
-        cell.remove(value)
-        if len(cell) == 1:
-            value = cell.pop()
-            grid[r_index][c_index] = value
-            return [(r_index, c_index, value)]
-    else:
-        if cell == value:
-            # cell has already been filled with this value
-            # error occurred
-            raise BadChoice
-    return []
-
-
 def solve_row(grid, solved_row_index, solved_column_index, solved_value):
     new_solved = []
     row = grid[solved_row_index]
     for col_index, cell in enumerate(row):
         if col_index == solved_column_index:
             continue
-        new_solved += update_cells(grid, cell, solved_value, solved_row_index, col_index)
+        if isinstance(cell, set) and solved_value in cell:
+            cell.remove(solved_value)
+            if len(cell) == 1:
+                value = cell.pop()
+                grid[solved_row_index][col_index] = value
+                new_solved.append((solved_row_index, col_index, value))
+        else:
+            if cell == solved_value:
+                raise BadChoice
     return new_solved
 
 
@@ -143,8 +136,15 @@ def solve_column(grid, solved_row_index, solved_column_index, solved_value):
         if r_index == solved_row_index:
             continue
         cell = row[solved_column_index]
-        new_solved += update_cells(grid, cell, solved_value, r_index, solved_column_index)
-
+        if isinstance(cell, set) and solved_value in cell:
+            cell.remove(solved_value)
+            if len(cell) == 1:
+                value = cell.pop()
+                grid[r_index][solved_column_index] = value
+                new_solved.append((r_index, solved_column_index, value))
+        else:
+            if cell == solved_value:
+                raise BadChoice
     return new_solved
 
 
@@ -154,10 +154,16 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
     square_col_start = solved_column_index - solved_column_index % 3
     square = get_square(grid, square_row_start, square_col_start)
     for r_index, c_index, cell in square:
-        if r_index == solved_row_index and c_index == solved_column_index:
+        if isinstance(cell, set) and solved_value in cell:
+            cell.remove(solved_value)
+            if len(cell) == 1:
+                value = cell.pop()
+                grid[r_index][c_index] = value
+                new_solved.append((r_index, c_index, value))
+        elif r_index == solved_row_index and c_index == solved_column_index:
             continue
-        new_solved += update_cells(grid, cell, solved_value, r_index, c_index)
-
+        elif cell == solved_value:
+            raise BadChoice
     return new_solved
 
 
