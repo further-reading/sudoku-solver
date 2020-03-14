@@ -104,6 +104,14 @@ def propagate_constraints(grid, solved):
                 NOT_STALLED = True
 
 
+def get_square(grid, row_start, col_start):
+    square = []
+    for r_index in range(row_start, row_start + 3):
+        for c_index in range(col_start, col_start + 3):
+            square.append((r_index, c_index, grid[r_index][c_index]))
+    return square
+
+
 def solve_row(grid, solved_row_index, solved_column_index, solved_value):
     global NOT_STALLED
     new_solved = []
@@ -149,24 +157,19 @@ def solve_square(grid, solved_row_index, solved_column_index, solved_value):
     new_solved = []
     square_row_start = solved_row_index - solved_row_index % 3
     square_col_start = solved_column_index - solved_column_index % 3
-    for r_index in range(3):
-        r_index = square_row_start + r_index
-        if r_index == solved_row_index:
+    square = get_square(grid, square_row_start, square_col_start)
+    for r_index, c_index, cell in square:
+        if isinstance(cell, set) and solved_value in cell:
+            NOT_STALLED = True
+            cell.remove(solved_value)
+            if len(cell) == 1:
+                value = cell.pop()
+                grid[r_index][c_index] = value
+                new_solved.append((r_index, c_index, value))
+        elif r_index == solved_row_index and c_index == solved_column_index:
             continue
-        for c_index in range(3):
-            c_index = square_col_start + c_index
-            if c_index == solved_column_index:
-                continue
-            cell = grid[r_index][c_index]
-            if isinstance(cell, set) and solved_value in cell:
-                NOT_STALLED = True
-                cell.remove(solved_value)
-                if len(cell) == 1:
-                    value = cell.pop()
-                    grid[r_index][c_index] = value
-                    new_solved.append((r_index, c_index, value))
-            elif cell == solved_value:
-                raise BadChoice
+        elif cell == solved_value:
+            raise BadChoice
     return new_solved
 
 
@@ -230,14 +233,6 @@ def pairs_columns(grid):
     return new_solved
 
 
-def get_square(grid, row_start, col_start):
-    square = {}
-    for r_index in range(row_start, row_start + 3):
-        for c_index in range(col_start, col_start + 3):
-            square[(r_index, c_index)] = grid[r_index][c_index]
-    return square
-
-
 def pairs_squares(grid):
     global NOT_STALLED
     new_solved = []
@@ -245,16 +240,17 @@ def pairs_squares(grid):
         for square_col_start in range(0, 9, 3):
             square = get_square(grid, square_row_start, square_col_start)
             pairs = []
-            square = list(square.items())
-            for index, (coord, cell) in enumerate(square):
+            for index, cell_details in enumerate(square):
+                cell = cell_details[2]
                 if isinstance(cell, int):
                     continue
                 if len(cell) == 2:
-                    for next_coord, next_cell in square[index + 1:]:
+                    for next_cell_details in square[index + 1:]:
+                        next_cell = next_cell_details[2]
                         if next_cell == cell:
                             pairs.append(cell)
             for pair in pairs:
-                for coord, cell in square:
+                for r_index, c_index, cell in square:
                     if cell == pair:
                         continue
                     if isinstance(cell, int):
@@ -265,9 +261,8 @@ def pairs_squares(grid):
                             cell.remove(choice)
                             if len(cell) == 1:
                                 value = cell.pop()
-                                row, col = coord
-                                grid[row][col] = value
-                                new_solved.append((row, col, value))
+                                grid[r_index][c_index] = value
+                                new_solved.append((r_index, c_index, value))
     return new_solved
 
 
@@ -312,23 +307,18 @@ def set_difference_columns(grid):
 
 def set_difference_squares(grid):
     new_solved = []
-    for square_start in range(0, 9, 3):
-        coordinates = []
-        sets = []
-        for row_index, row in enumerate(grid[square_start:square_start + 3]):
-            for col_index, cell in enumerate(row[square_start:square_start + 3]):
-                if isinstance(cell, set):
-                    sets.append(cell)
-                    coordinates.append(
-                        (row_index + square_start, col_index + square_start)
-                    )
-        sets = difference_elimination(sets)
-        for cell, coords in zip(sets, coordinates):
-            row_index, col_index = coords
-            if len(cell) == 1:
-                cell = cell.pop()
-                new_solved.append((row_index, col_index, cell))
-            grid[row_index][col_index] = cell
+    for row_start in range(0, 9, 3):
+        for col_start in range(0, 9, 3):
+            square = get_square(grid, row_start, col_start)
+            sets = [x for r, c, x in square if isinstance(x, set)]
+            coordinates = [(r, c) for r, c, x in square if isinstance(x, set)]
+            sets = difference_elimination(sets)
+            for cell, coords in zip(sets, coordinates):
+                row_index, col_index = coords
+                if len(cell) == 1:
+                    cell = cell.pop()
+                    new_solved.append((row_index, col_index, cell))
+                grid[row_index][col_index] = cell
 
     return new_solved
 
