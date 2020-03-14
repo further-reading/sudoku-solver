@@ -248,6 +248,31 @@ def pairs_squares(grid):
     return new_solved
 
 
+def difference_elimination(set_list):
+    for index, num_set in enumerate(set_list):
+        other_sets_union = set()
+        for i2, other_set in enumerate(set_list):
+            if i2 != index:
+                other_sets_union = other_sets_union | other_set
+        difference = num_set - other_sets_union
+        if difference:
+            # if no difference then its a subset
+            set_list[index] = difference
+    return set_list
+
+
+def update_sets(update_list, grid):
+    new_solved = []
+    for cell, coords in update_list:
+        row_index, col_index = coords
+        if len(cell) == 1:
+            cell = cell.pop()
+            new_solved.append((row_index, col_index, cell))
+            grid[row_index][col_index] = cell
+
+    return new_solved
+
+
 def set_difference_rows(grid):
     new_solved = []
     for row_index, row in enumerate(grid):
@@ -288,31 +313,6 @@ def set_difference_squares(grid):
             coordinates = [(r, c) for r, c, x in square if isinstance(x, set)]
             sets = difference_elimination(sets)
             new_solved += update_sets(zip(sets, coordinates), grid)
-
-    return new_solved
-
-
-def difference_elimination(set_list):
-    for index, num_set in enumerate(set_list):
-        other_sets_union = set()
-        for i2, other_set in enumerate(set_list):
-            if i2 != index:
-                other_sets_union = other_sets_union | other_set
-        difference = num_set - other_sets_union
-        if difference:
-            # if no difference then its a subset
-            set_list[index] = difference
-    return set_list
-
-
-def update_sets(update_list, grid):
-    new_solved = []
-    for cell, coords in update_list:
-        row_index, col_index = coords
-        if len(cell) == 1:
-            cell = cell.pop()
-            new_solved.append((row_index, col_index, cell))
-            grid[row_index][col_index] = cell
 
     return new_solved
 
